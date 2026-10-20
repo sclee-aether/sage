@@ -286,7 +286,12 @@ defmodule Sage do
   Creates a new Sage.
   """
   @spec new() :: t()
-  def new, do: %Sage{}
+  # Built with `struct/1` rather than a `%Sage{}` literal: Dialyzer (OTP 28) types an empty MapSet as
+  # the concrete `%MapSet{map: %{}}`, so a literal's success typing breaks MapSet's opaqueness and
+  # every caller passing `Sage.new()` on to `run/3` etc. gets a warning. `struct/1` returns a plain
+  # `struct()`, so callers see this function's `t()` contract instead. (Calling `MapSet.new()` here
+  # does not help — it has the same concrete success typing.)
+  def new, do: struct(Sage)
 
   @doc """
   Register error handler for compensations.
